@@ -7,8 +7,9 @@
 \usepackage{graphicx}
 \usepackage{tikz}
 \usepackage{listings}
-\usepackage{subfig}
+% \usepackage{subfig}
 \usepackage{float}
+
 \lstset{
     basicstyle=\ttfamily,
     columns=fullflexible,
@@ -21,7 +22,7 @@
 \pagestyle{headandfoot}
 \runningheadrule
 \runningfootrule
-\runningheader{EE/CE 468/468 Mobile Robotics}{Homework 2}{Fall 2023}
+\runningheader{EE/CE 468/468 Mobile Robotics}{Homework 3}{Fall 2023}
 \runningfooter{}{Page \thepage\ of \numpages}{}
 \firstpageheader{}{}{}
 
@@ -29,22 +30,129 @@
 \printanswers
 
 \newcommand{\uvec}[1]{\boldsymbol{\hat{\textbf{#1}}}}
-\newcommand\union\cup
+\newcommand\union\cup 
 \newcommand\inter\cap
 \newcommand\ul\underline
 \newcommand\ol\overline
 
-\title{Assignment 2\\ EE/CE 468/468 Mobile Robotics\\ Habib University -- Fall 2023}
-\author{Ali Asghar Yousuf \\ Muhammad Azeem Haider }  % replace with your ID, e.g. oy02945
+\title{Assignment 3\\ EE/CE 468/468 Mobile Robotics\\ Habib University -- Fall 2023}
+\author{Ali Asghar Yousuf \\ Muhammad Azeem Haider }
 \date{\today}
 
 \begin{document}
 \maketitle
 
 \begin{questions}
-    \question
+    \question[20]
+    Consider a robot that lives in a 1-D coordinate system. Its location will be denoted by \(x\), its velocity by \(\dot{x}\), and its acceleration by \(\ddot{x}\). Suppose we can only control the acceleration \(\ddot{x}\). Making use of equations of motion from school physics, write the discrete-time motion model for this system. Assume that the acceleration \(\ddot{x}\) is a sum of a commanded acceleration and a zero-mean noise term with variance \(\sigma^2\) and assume that the actual acceleration remains constant in an interval \(\Delta t\).
     \begin{parts}
-        \part
+        \part Find the uncertainty/covariance in the pose \((x, \dot{x})\) after one time step. Are the two correlated?
+        \begin{solution}
+        \end{solution}
+
+        \part Suppose we control this robot with a commanded acceleration sequence \(a_1, a_2, a_3, \ldots\) for \(T\) time intervals. Will the final location \(x\) and the final velocity \(\dot{x}\) be correlated for some large value of \(T\)?
+        \begin{solution}
+        \end{solution}
+    \end{parts}
+
+    \question[20]
+    Suppose we have a mobile robot operating in a planar environment. Its state is its \(x\)-\(y\) location and its global heading direction \(\theta\). Suppose we know \(x\) and \(y\) with high certainty but the orientation \(\theta\) is unknown. This is reflected in our initial estimate:
+    \[
+    \hat{x}_0 = \begin{bmatrix} 0 \\ 0 \\ 0 \end{bmatrix}, \quad
+    \Sigma_0 = \begin{bmatrix} 0.01 & 0 & 0 \\ 0 & 0.01 & 0 \\ 0 & 0 & 10000 \end{bmatrix}.
+    \]
+    \begin{parts}
+        \part Assume that the robot moves flawlessly without any noise. We'll consider the simple case when the robot's heading is not being controlled i.e. \(\omega = 0\). Observations of the robot are made at discrete points in time and consist of the robot's distance from the origin \(d\) and the bearing \(\theta\) measured from the origin. Assume that the noise associated with these two measurements are independent. Develop a Kalman Filter that maintains an estimate of the robot’s state.
+        \begin{solution}
+        \end{solution}
+
+        \part The location of the robot is a random vector. Draw 1000 samples of the initial state from a Gaussian distribution of the stated mean and covariance, propagate each initial state sample according to the motion equation and plot the samples of the \(x\)-\(y\) state only at time 1 in MATLAB. Assume that distance covered in one time step is 1.
+        \begin{solution}
+        \end{solution}
+
+        \part Use the prediction step of the EKF to make a prediction about the state at time 1 and its corresponding covariance. Plot the uncertainty ellipse of a Gaussian with mean equal to \(\bar{x}_1\) and covariance \(\bar{\Sigma}_1\) on the same plot as (a) and compare and comment on the two.
+        \begin{solution}
+        \end{solution}
+
+        \part Now incorporate a noisy measurement i.e. \(z = d + \epsilon\) where \(\epsilon\) is zero-mean with covariance 0.01. Again draw the uncertainty ellipse on the same plot after incorporating the measurement.
+        \begin{solution}
+        \end{solution}
+
+        \part What would have been your estimate for the \(x\)-\(y\) at time 1 considering (a)? What would be your comments about the estimate provided by the EKF? What would have happened if the initial orientation were known but we were uncertain about the \(y\) coordinate?
+        \begin{solution}
+        \end{solution}
+    \end{parts}
+
+    \question[20]
+    Suppose we live at a place where days are either sunny, cloudy, or rainy. The weather tomorrow is determined solely by the weather today (it’s a Markov Chain) and is captured by the following state transition probabilities:
+    \begin{center}
+    \textbf{Today's Weather} \\
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+    \textbf{} & \textbf{Sunny} & \textbf{Cloudy} & \textbf{Rainy} \\ \hline
+    \textbf{Sunny} & 0.8 & 0.2 & 0 \\ \hline
+    \textbf{Cloudy} & 0.4 & 0.4 & 0.2 \\ \hline
+    \textbf{Rainy} & 0.2 & 0.6 & 0.2 \\ \hline
+    \end{tabular}
+    \end{center}
+    Suppose that we cannot observe the weather directly but instead rely on a sensor. Our sensor is noisy. The measurements are governed by the following measurement model:
+    \begin{center}
+    \textbf{Actual Weather} \\
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+    \textbf{} & \textbf{Sunny} & \textbf{Cloudy} & \textbf{Rainy} \\ \hline
+    \textbf{Sunny} & 0.6 & 0.4 & 0 \\ \hline
+    \textbf{Cloudy} & 0.3 & 0.7 & 0 \\ \hline
+    \textbf{Rainy} & 0 & 0 & 1 \\ \hline
+    \end{tabular}
+    \end{center}
+    \begin{parts}
+        \part Suppose Day 1 is sunny (this is known for a fact). At days 2 through 4 the sensor measures sunny, sunny, rainy. For each of the days 2 through 4 what is the most likely weather on that day. Answer the question in two ways: one in which only the data available to the day in question is used and one in hindsight where data from future days is also available.
+        \begin{solution}
+            % answer here
+        \end{solution}
+
+        \part Consider the same situation. What is the most likely sequence of weather for Days 2 through 4? What is the probability of the most likely sequence?
+        \begin{solution}
+            % answer here
+        \end{solution}
+    \end{parts}
+
+    \question[20]
+    \begin{parts}
+        \part Complete the incrementalLocalization and all of its subsidiary functions.
+        \begin{solution}
+        \end{solution}
+
+        \part Comment on the performance of the EKF-based localization after running the simulation for a longer time.
+        \begin{solution}
+        \end{solution}
+
+        \part Provide an explanation with reference to code on how the measurement uncertainty covariance matrix R is computed from the uncertainty of the lidar.
+        \begin{solution}
+        \end{solution}
+
+        \part (Bonus) Apply the Unscented Kalman Filter to this problem.
+        \begin{solution}
+        \end{solution}
+    \end{parts}
+
+    \question[20]
+    Answer the following questions individually:
+    \begin{parts}
+        \part How many hours did each of you spend on this homework?
+        \begin{solution}
+        \end{solution}
+
+        \part State each group member's specific contribution to this homework assignment.
+        \begin{solution}
+        \end{solution}
+
+        \part Do you have any specific advice for students attempting this homework next year?
+        \begin{solution}
+        \end{solution}
+
+        \part Provide a self-reflection in the form of a note or a concept map.
         \begin{solution}
         \end{solution}
     \end{parts}
