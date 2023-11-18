@@ -108,9 +108,31 @@
     \end{center}
     \begin{parts}
         \part Suppose Day 1 is sunny (this is known for a fact). At days 2 through 4 the sensor measures sunny, sunny, rainy. For each of the days 2 through 4 what is the most likely weather on that day. Answer the question in two ways: one in which only the data available to the day in question is used and one in hindsight where data from future days is also available.
+        
         \begin{solution}
-            % answer here
+            By applying Bayes' rule and Markov assumption:
+            
+            \begin{align*}
+                P(x_5|x_1, z_{2:5}) &= \eta P(z_5|x_5, x_1, z_{2:4})P(x_5|x_1, z_{2:4}) \\
+                \intertext{Then, for the transition from $x_4$ to $x_5$:}
+                P(x_5|x_1, z_{2:4}) &= \sum_{x_4} P(x_5|x_4)P(x_4|x_1, z_{2:4}) \\
+                \intertext{Note, however, that $z_4 = \text{rainy}$ implies $x_4 = \text{rainy}$. Therefore,}
+                P(x_5|x_1, z_{2:4}) &= P(x_5|x_4 = \text{rainy}) \cdot 1
+            \end{align*}
+            
+            Altogether, the probability of sunny weather at $x_5$ is:
+
+            \begin{align*}
+                P(x_5 = \text{sunny}|x_1, z_{2:3} = \text{rainy}, z_5 = \text{sunny}) \\
+                \eta \left[P(z_5 = \text{sunny}|x_5 = \text{sunny}) \times P(x_5 = \text{sunny}|x_4 = \text{rainy})\right] \\
+                \eta \left[\frac{P(z_5 = \text{sunny}|x_5 = \text{sunny})}{\sum_{x_4} P(x_5 = \text{sunny}|x_4)} \times P(x_4|x_1, z_{2:4})\right] \\
+            \end{align*}
+
+            
+            \textbf{Answer:} 0.6 $\times$ 0.2 + 0.3 $\times$ 0.6 + 0 = 0.4
+            
         \end{solution}
+        
 
         \part Consider the same situation. What is the most likely sequence of weather for Days 2 through 4? What is the probability of the most likely sequence?
         \begin{solution}
