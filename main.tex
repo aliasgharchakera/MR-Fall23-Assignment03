@@ -159,10 +159,59 @@
 
         \part The location of the robot is a random vector. Draw 1000 samples of the initial state from a Gaussian distribution of the stated mean and covariance, propagate each initial state sample according to the motion equation and plot the samples of the \(x\)-\(y\) state only at time 1 in MATLAB. Assume that distance covered in one time step is 1.
         \begin{solution}
+            The following figure shows the 1000 samples of the initial state propagated
+            according to the motion equation at time 1.
+            \begin{figure}[H]
+                \centering
+                \includegraphics[width=0.8\textwidth]{images/2b.png}
+                \caption{1000 samples of the initial state propagated according to the motion equation at time 1.}
+            \end{figure}
         \end{solution}
 
         \part Use the prediction step of the EKF to make a prediction about the state at time 1 and its corresponding covariance. Plot the uncertainty ellipse of a Gaussian with mean equal to \(\bar{x}_1\) and covariance \(\bar{\Sigma}_1\) on the same plot as (a) and compare and comment on the two.
         \begin{solution}
+            Using the prediction step of the EKF:
+            \begin{align*}
+                \bar{x}_{1}      & = A_{1} \hat{x}_{0},                   \\
+                \bar{\Sigma}_{1} & = A_{1} \Sigma_{0} A_{1}^T
+                \intertext{where}
+                A_{1}            & = \begin{bmatrix}
+                                         1 & 0 & -v_0 \Delta t \sin(\theta_0) \\
+                                         0 & 1 & v_0 \Delta t \cos(\theta_0)  \\
+                                         0 & 0 & 1
+                                     \end{bmatrix} \\
+                \Delta t         & = 1                                    \\
+                v_0              & = 1                                    \\
+                \theta_0         & = 0                                    \\
+                \hat{x}_{0}      & = \begin{bmatrix}
+                                         0 \\ 0 \\ 0
+                                     \end{bmatrix}                       \\
+                \Sigma_{0}       & = \begin{bmatrix}
+                                         0.01 & 0    & 0     \\
+                                         0    & 0.01 & 0     \\
+                                         0    & 0    & 10000
+                                     \end{bmatrix}                  \\
+            \end{align*}
+
+            Putting the values in the above equations, we get:
+            \begin{align*}
+                \bar{x}_{1}      & = \begin{bmatrix}
+                                         0 \\ 0 \\ 0
+                                     \end{bmatrix},         \\
+                \bar{\Sigma}_{1} & = \begin{bmatrix}
+                                         0.01 & 0      & 0      \\
+                                         0    & 10000 & 10000 \\
+                                         0    & 10000 & 10000
+                                     \end{bmatrix}
+            \end{align*}
+
+            The uncertainty ellipse of a Gaussian with mean equal to \(\bar{x}_1\) and
+            covariance \(\bar{\Sigma}_1\) is shown in the following figure:
+            % \begin{figure}[H]
+            %     \centering
+            %     \includegraphics[width=0.8\textwidth]{images/2c.png}
+            %     \caption{Uncertainty ellipse of a Gaussian with mean equal to \(\bar{x}_1\) and covariance \(\bar{\Sigma}_1\).}
+            % \end{figure}
         \end{solution}
 
         \part Now incorporate a noisy measurement i.e. \(z = d + \epsilon\) where \(\epsilon\) is zero-mean with covariance 0.01. Again draw the uncertainty ellipse on the same plot after incorporating the measurement.
