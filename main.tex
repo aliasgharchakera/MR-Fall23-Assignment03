@@ -47,33 +47,21 @@
     \begin{parts}
         \part Find the uncertainty/covariance in the pose \((x, \dot{x})\) after one time step. Are the two correlated?
         \begin{solution}
-            \textbf{Solution for Part A:}
-            
-            \textbf{Derivation of State Update Equations:}
-            
-            Given the state vector at time \( t \) as \( \mathbf{x}_t = \begin{bmatrix} x_t \\ \dot{x}_t \end{bmatrix} \), and the control input modeled as acceleration with additive Gaussian noise, \( \ddot{x}_t = u_t + \epsilon_t \) where \( \epsilon_t \sim \mathcal{N}(0, \sigma^2) \), the state update equations in discrete time are derived using classic kinematic equations:
-            
-            The velocity update equation:
-            \[ \dot{x}_{t+1} = \dot{x}_t + (u_t + \epsilon_t) \Delta t \]
-            which corresponds to the physics equation of motion \( v = u + at \) adapted for discrete time and control input with noise.
-            
-            The position update equation:
-            \[ x_{t+1} = x_t + \dot{x}_t \Delta t + \frac{1}{2}(u_t + \epsilon_t) (\Delta t)^2 \]
-            which is based on the equation \( s = ut + \frac{1}{2}at^2 \), adapted for discrete time and noisy control input.
-            
-            \textbf{Covariance Matrix Computation:}
-            
-            The covariance matrix \(\mathbf{\Sigma}_{t+1}\) of the state after one time step can be computed considering the process noise. Assuming the initial state is known exactly (\(\mathbf{\Sigma}_t = \mathbf{0}\)), the covariance matrix after one time step is given by:
-            \[ \mathbf{\Sigma}_{t+1} = \mathbf{A}_t \mathbf{\Sigma}_t \mathbf{A}_t^\top + \mathbf{Q}_t \]
-            where \(\mathbf{A}_t\) is the state transition matrix and \(\mathbf{Q}_t\) is the process noise covariance matrix. Given \(\mathbf{A}_t\) as
-            \[ \mathbf{A}_t = \begin{bmatrix} 1 & \Delta t \\ 0 & 1 \end{bmatrix} \]
-            and \(\mathbf{Q}_t\) as
-            \[ \mathbf{Q}_t = \begin{bmatrix} \frac{1}{4}(\Delta t)^4 & \frac{1}{2}(\Delta t)^3 \\ \frac{1}{2}(\Delta t)^3 & (\Delta t)^2 \end{bmatrix} \sigma^2 \]
-            we can compute \(\mathbf{\Sigma}_{t+1}\) as:
-            \[ \mathbf{\Sigma}_{t+1} = \mathbf{Q}_t = \begin{bmatrix} \frac{1}{4}(\Delta t)^4 & \frac{1}{2}(\Delta t)^3 \\ \frac{1}{2}(\Delta t)^3 & (\Delta t)^2 \end{bmatrix} \sigma^2 \]
-            
-            This covariance matrix reflects the propagation of uncertainty from the process noise through the system and indicates the correlation between position and velocity after one time step.
-        \end{solution}
+    \textbf{Solution for Part A:}
+    
+    Let's think of our robot moving in a straight line. We know its position \( x \), velocity \( \dot{x} \), and we control its acceleration \( \ddot{x} \), which has some unpredictable part (like random bumps on the road). We represent this uncertainty in acceleration as a zero-mean noise with variance \( \sigma^2 \).
+
+    Now, to update the robot's position and velocity, we use basic physics:
+    \begin{itemize}
+        \item The new velocity \( \dot{x}_{t+1} \) is the old velocity \( \dot{x}_t \) plus acceleration times the time interval \( \Delta t \).
+        \item The new position \( x_{t+1} \) is the old position \( x_t \) plus the old velocity times \( \Delta t \) plus half the acceleration times \( \Delta t \) squared.
+    \end{itemize}
+    
+    For the uncertainty part, it's like predicting the weather. We start with what we know (the current state of the robot) and then add in our "best guess" for how things change (our control input plus the random noise). The uncertainty in the robot's position and velocity after one step can be captured in a matrix called the covariance matrix. This matrix tells us how confident we are about the robot's position and velocity and whether there's any link (correlation) between them.
+
+    In short, this approach shows that even if we start off certain about the robot's position and velocity, the unpredictable part of the acceleration introduces some doubt, making the position and velocity interrelated (correlated) after one time step.
+\end{solution}
+
         
         \part Suppose we control this robot with a commanded acceleration sequence \(a_1, a_2, a_3, \ldots\) for \(T\) time intervals. Will the final location \(x\) and the final velocity \(\dot{x}\) be correlated for some large value of \(T\)?
         \begin{solution}
@@ -395,10 +383,12 @@
 
         \part Do you have any specific advice for students attempting this homework next year?
         \begin{solution}
+            \textbf{Azeem} Start the homework early, you may look at the questions and tell yourself yeah these are simple questions, markov chains aint that difficult, and state estimation is not all that challenging but when you actually start doing the questions you realize you know too little and the questions really test your knowledge. Start early, no matter what your mind tells you. In addition, know your concepts, it is essential to know where you are struggling and fix it through this homework and take help from the instructor and your peers. 
         \end{solution}
 
         \part Provide a self-reflection in the form of a note or a concept map.
         \begin{solution}
+            \textbf{Azeem} Attempting questions are always difficult because this is like the hands on practise you get after lectures. I attempted question 3 first, because in my opinion, it looked the easiest and I could not be more wrong. While it made sense once I understood it, making sense to why the markov chains and bayesian estimation works the way it works is difficult. In addition, using state estimation to solve the covariance matrix was also difficult. I am not entirely sure about the correctness of my question 1. 
         \end{solution}
     \end{parts}
 \end{questions}
