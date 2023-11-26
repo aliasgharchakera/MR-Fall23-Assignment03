@@ -47,46 +47,47 @@
     \begin{parts}
         \part Find the uncertainty/covariance in the pose \((x, \dot{x})\) after one time step. Are the two correlated?
         \begin{solution}
-    \textbf{Solution for Part A:}
-    
-    Let's think of our robot moving in a straight line. We know its position \( x \), velocity \( \dot{x} \), and we control its acceleration \( \ddot{x} \), which has some unpredictable part (like random bumps on the road). We represent this uncertainty in acceleration as a zero-mean noise with variance \( \sigma^2 \).
-
-    Now, to update the robot's position and velocity, we use basic physics:
-    \begin{itemize}
-        \item The new velocity \( \dot{x}_{t+1} \) is the old velocity \( \dot{x}_t \) plus acceleration times the time interval \( \Delta t \).
-        \item The new position \( x_{t+1} \) is the old position \( x_t \) plus the old velocity times \( \Delta t \) plus half the acceleration times \( \Delta t \) squared.
-    \end{itemize}
-    
-    For the uncertainty part, it's like predicting the weather. We start with what we know (the current state of the robot) and then add in our "best guess" for how things change (our control input plus the random noise). The uncertainty in the robot's position and velocity after one step can be captured in a matrix called the covariance matrix. This matrix tells us how confident we are about the robot's position and velocity and whether there's any link (correlation) between them.
-
-    In short, this approach shows that even if we start off certain about the robot's position and velocity, the unpredictable part of the acceleration introduces some doubt, making the position and velocity interrelated (correlated) after one time step.
-\end{solution}
-
+            Starting with the classic kinematic equations:
+            \begin{align*}
+                x &= v_i t + \frac{1}{2} a t^2, \\
+                v &= v_i + a t,
+            \end{align*}
+            and transitioning to a discrete-time domain for the \( k \)-th time step, we get:
+            \begin{align*}
+                x_{k+1} &= x_k + \dot{x}_k \Delta t + \frac{1}{2} \ddot{x}_k \Delta t^2, \\
+                \dot{x}_{k+1} &= \dot{x}_k + \ddot{x}_k \Delta t.
+            \end{align*}
+        
+            The acceleration includes a deterministic part and a random noise component:
+            \begin{align*}
+                \ddot{x}_k &= a_k + \eta_k, \\
+                \eta_k &\sim N(0, \sigma^2).
+            \end{align*}
+        
+            The state transition incorporating noise becomes:
+            \begin{align*}
+                x_{k+1} &= x_k + \dot{x}_k \Delta t + \frac{1}{2} (a_k + \eta_k) \Delta t^2, \\
+                \dot{x}_{k+1} &= \dot{x}_k + (a_k + \eta_k) \Delta t.
+            \end{align*}
+        
+            \[
+            \Sigma = \begin{bmatrix}
+            \sigma_{xx} & \sigma_{x\dot{x}} \\
+            \sigma_{x\dot{x}} & \sigma_{\dot{x}\dot{x}}
+            \end{bmatrix}   
+            \]
+            where:
+            \begin{itemize}
+                \item \( \sigma_{xx} \) is the variance of the position \( x \),
+                \item \( \sigma_{\dot{x}\dot{x}} \) is the variance of the velocity \( \dot{x} \),
+                \item \( \sigma_{x\dot{x}} \) is the covariance between position \( x \) and velocity \( \dot{x} \).
+            \end{itemize}
+            The non-zero \( \sigma_{x\dot{x}} \) implies that the position and velocity are correlated after one time step, influenced by the acceleration noise.
+        \end{solution}        
         
         \part Suppose we control this robot with a commanded acceleration sequence \(a_1, a_2, a_3, \ldots\) for \(T\) time intervals. Will the final location \(x\) and the final velocity \(\dot{x}\) be correlated for some large value of \(T\)?
         \begin{solution}
-            \textbf{Solution for Part B:}
-            
-            Given the discrete-time dynamical system with state vector at time step \( t \) as \( \mathbf{x}_t \) and control input as the acceleration \( u_t \) with additive Gaussian noise \( \epsilon_t \), the system can be described as:
-            
-            \begin{itemize}
-                \item The control input noise \( \epsilon_t \) is Gaussian distributed with zero mean and variance \( \sigma^2 \), that is \( \epsilon_t \sim \mathcal{N}(0, \sigma^2) \).
-                \item The system follows a linear state-space model with the state transition matrix \( \mathbf{A} \) and control input matrix \( \mathbf{B} \).
-            \end{itemize}
-            
-            The state update equation is:
-            \[ \mathbf{x}_{t+1} = \mathbf{A} \mathbf{x}_t + \mathbf{B} (u_t + \epsilon_t) \]
-            where
-            \[ \mathbf{A} = \begin{bmatrix} 1 & \Delta t \\ 0 & 1 \end{bmatrix}, \quad \mathbf{B} = \begin{bmatrix} \frac{1}{2} (\Delta t)^2 \\ \Delta t \end{bmatrix}, \quad \mathbf{x}_t = \begin{bmatrix} x_t \\ \dot{x}_t \end{bmatrix}. \]
-            
-            After \( T \) time intervals, the final state \( \mathbf{x}_T \) can be expressed as:
-            \[ \mathbf{x}_T = \mathbf{A}^T \mathbf{x}_0 + \sum_{t=0}^{T-1} \mathbf{A}^{T-t-1} \mathbf{B} (u_t + \epsilon_t). \]
-            
-            The covariance matrix of the final state \( \mathbf{x}_T \), which encapsulates the accumulated uncertainty from the process noise, is given by:
-            \[ \mathbf{\Sigma}_T = \sum_{t=0}^{T-1} \mathbf{A}^{T-t-1} \mathbf{B} \mathbf{Q} \mathbf{B}^\top (\mathbf{A}^{T-t-1})^\top, \]
-            where \( \mathbf{Q} \) is the covariance matrix of the process noise \( \epsilon_t \).
-            
-            The non-zero off-diagonal terms of the covariance matrix \( \mathbf{\Sigma}_T \) indicate a correlation between the final location and velocity. This correlation results from the control input noise, which affects both velocity and position over time due to the system's dynamics.
+            Over a large number of time intervals \(T\), the final location \(x\) and velocity \(\dot{x}\) will accumulate changes due to the commanded accelerations and noise. As \(T\) increases, the influence of initial conditions on the final state diminishes, and the cumulative effect of accelerations becomes more significant. If the accelerations are uncorrelated over time and the noise is zero-mean, the final position and velocity may become less correlated. However, any patterns or dependencies in the commanded accelerations could induce a correlation between the final position and velocity. 
         \end{solution}
                    
     \end{parts}
@@ -388,7 +389,8 @@
 
         \part Provide a self-reflection in the form of a note or a concept map.
         \begin{solution}
-            \textbf{Azeem} Attempting questions are always difficult because this is like the hands on practise you get after lectures. I attempted question 3 first, because in my opinion, it looked the easiest and I could not be more wrong. While it made sense once I understood it, making sense to why the markov chains and bayesian estimation works the way it works is difficult. In addition, using state estimation to solve the covariance matrix was also difficult. I am not entirely sure about the correctness of my question 1. 
+            \textbf{Azeem} 
+            Attempting questions can often present a challenge, as they serve as practical applications following theoretical lectures. I initially approached Question 3, which appeared to be the most straightforward; however, it proved to be quite the contrary. Grasping the underlying principles of Markov chains and Bayesian estimation was a complex task. Furthermore, employing state estimation techniques to resolve the covariance matrix in question 1 added to the difficulty of the homework. The correctness of my approach to Question 1 remains uncertain. Comprehending covariance matrices and formulating an argument for correlation in Question 1 was a particularly intricate aspect of this problem.
         \end{solution}
     \end{parts}
 \end{questions}
