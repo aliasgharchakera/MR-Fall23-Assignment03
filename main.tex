@@ -187,18 +187,207 @@
         \part Suppose Day 1 is sunny (this is known for a fact). At days 2 through 4 the sensor measures sunny, sunny, rainy. For each of the days 2 through 4 what is the most likely weather on that day. Answer the question in two ways: one in which only the data available to the day in question is used and one in hindsight where data from future days is also available.
         
         \begin{solution}
-
-
-        \end{solution}
+            \textbf{Day 2 $\mid$ only data available to the day in question is used}
+            \begin{align*}
+                P(x_2 \mid x_1, z_2) &= \eta P(z_2 \mid x_2, x_1) P(x_2 \mid x_1) \\
+                &= \eta P(z_2 \mid x_2) P(x_2 \mid x_1) \\
+                &= \eta \begin{bmatrix}
+                    0.6 \\
+                    0.3 \\
+                    0 
+                \end{bmatrix} \cdot \begin{bmatrix}
+                    0.8 \\
+                    0.2 \\
+                    0
+                \end{bmatrix} \\
+                &= \eta \begin{bmatrix}
+                    0.48 \\
+                    0.06 \\
+                    0
+                \end{bmatrix} \\
+                &= \eta \left( 0.48 + 0.06 + 0 \right) \begin{bmatrix}
+                    0.48 \\
+                    0.06 \\
+                    0
+                \end{bmatrix} \\
+                &= \frac{1}{0.54} \begin{bmatrix}
+                    0.48 \\
+                    0.06 \\
+                    0
+                \end{bmatrix} \\
+                &= \begin{bmatrix}
+                    8/9 \\
+                    1/9 \\
+                    0
+                \end{bmatrix}
+            \end{align*}
+            Here, \(\eta = \frac{1}{0.54}\) is the normalizing constant. \\
+            Therefore, the most likely weather on Day 2 is \textit{sunny} given that we are only using the data available to us.
             
-        \part Once again, suppose Day 1 is known to be sunny. At Days 2 through 4, the sensor
-        measures \textit{sunny}, \textit{sunny}, \textit{rainy}. For each of the Days 2 through 4, what is the most likely
-        weather on that day? Answer the question in two ways: one in which only the data
-        available to the day in question is used, and one in hindsight, where data from future
-        days is also available.
+            \textbf{Day 3 $\mid$ only data available to the day in question is used}
+            \begin{align*}
+                P(x_3 \mid x_2, z_{2:3}) &= \eta P(z_3 \mid x_3, x_1, x_2) P(x_3 \mid x_1, x_2) \\
+                &= \eta P(z_3 \mid x_3) \sum_{x_2} P(x_3, x_2 \mid x_1, x_2) \\
+                &= \eta P(z_3 \mid x_3) \sum_{x_2} P(x_3 \mid x_2) P(x_2 \mid x_1, x_2)
+            \end{align*}
+            
+            \text{We know:}
+            \begin{align*}
+                P(x_2 \mid x_1, z_2) &= \begin{bmatrix}
+                    8/9 \\
+                    1/9 \\
+                    0
+                \end{bmatrix} \\
+                P(z_3 \mid x_3) &= \begin{bmatrix}
+                    0.6 \\
+                    0.3 \\
+                    0
+                \end{bmatrix} \\
+                \text{We get the following equation:} \\
+                P(x_3 \mid x_2, z_{2:3}) &= \eta \begin{bmatrix}
+                    0.6 \\
+                    0.3 \\
+                    0
+                \end{bmatrix} \sum_{x_2} P(x_3 \mid x_2) \begin{bmatrix}
+                    8/9 \\
+                    1/9 \\
+                    0
+                \end{bmatrix}
+            \end{align*}
+            
+            \text{For Sunny:}
+            \begin{align*}
+                0.6 \times \left[\begin{bmatrix} 0.8 & 0.4 & 0.2 \end{bmatrix} \cdot \begin{bmatrix}
+                    8/9 \\
+                    1/9 \\
+                    0
+                \end{bmatrix}\right] &= \frac{34}{75}
+            \end{align*}
+            
+            \text{For Cloudy:}
+            \begin{align*}
+                0.3 \times \left[\begin{bmatrix} 0.2 & 0.4 & 0.6 \end{bmatrix} \cdot \begin{bmatrix}
+                    8/9 \\
+                    1/9 \\
+                    0
+                \end{bmatrix}\right] &= \frac{1}{15}
+            \end{align*}
+
+            \text{For Rainy:}
+            \begin{align*}
+                0 \times \left[\begin{bmatrix} 0 & 0.2 & 0.2 \end{bmatrix} \cdot \begin{bmatrix}
+                    8/9 \\
+                    1/9 \\
+                    0
+                \end{bmatrix}\right] &= 0
+            \end{align*}
+            \text{Normalizing the matrix to get the accurate probability we get;}
+
+            Sunny $=$ 87.2\% \\
+            Cloudy $=$ 12.8\% \\
+            Rainy $=$ 0\% \\
+
+            Therefore, once again the most likely weather on Day 3 is sunny given that we are only using the data available to us.
+
+            \textbf{Day 4 $\mid$ only data available to the day in question is used}
+            \begin{align*}
+                P(x_4 | x_1, x_2;x_4) &= P(x_4 | x_3, x_4) \\
+                P(x_4 | x_1, x_2;x_4) &= \eta P(z_4 | x_4)P(x_4 | x_3) \\
+                P(x_4 | x_1, x_2;x_4) &= \begin{bmatrix}
+                0 \\
+                0 \\
+                1
+                \end{bmatrix}
+            \end{align*}
+
+            We know for sure that on the fourth day it will rain if the sensor has predicted it to rain.
+
+            % \newpage
+            \textbf{Day 2 $\mid$ where data from future days is also available}
+            % \vspace{-5mm}
+            \begin{align*}
+                P(x_{2:4} | x_1, z_{2:4}) &= \eta P(x_{2:4} | x_1) P(z_{2:4} | x_{2:4}, x_1) \\
+                &= \eta P(x_{2} | x_1) P(z_{2:4} | x_2) \\
+                &= \eta P(x_{2} | x_1) P(z_{2} | x_2) \sum_{x_3} P(x_3 | x_2, z_2) P(z_{3:4} | x_2) \\
+                &= \eta P(x_{2} | x_1) P(z_{2} | x_2) \sum_{x_3} P(x_3 | x_2) P(z_{3:4} | x_3, x_2) \\
+                &= \eta P(x_{2} | x_1) P(z_{2} | x_2) \sum_{x_3} P(x_3 | x_2) P(z_3 | x_3) P(z_{4:3} | x_3) \\
+                &= \eta P(x_{2} | x_1) P(z_{2} | x_2) \sum_{x_3} P(x_3 | x_2) P(z_3 | x_3) \sum_{x_4} P(x_4 | x_3) P(z_4 | x_4, x_3) \\
+                &= \eta P(x_{2} | x_1) P(z_{2} | x_2) \sum_{x_3} P(x_3 | x_2) P(z_3 | x_3) \sum_{x_4} P(x_4 | x_3) P(z_4 | x_3) \\
+                &= \eta P(x_{2} | x_1) P(z_{2} | x_2) \sum_{x_3} P(x_3 | x_2) P(z_3 | x_3) \sum_{x_4} P(x_4 | x_3) P(z_4 | x_4) \\ 
+            \end{align*}
+            % \vspace{-10mm}
+            \begin{align*}    
+                P(z_4 | x_4) &= \begin{bmatrix}
+                0 \\
+                0 \\
+                1
+                \end{bmatrix} \\
+                P(z_3 | x_3) &= \begin{bmatrix}
+                    0.6 \\
+                    0.3 \\
+                    0
+                \end{bmatrix} \\
+                \sum_{x_4} P(x_4 | x_3) P(z_4 | x_4) &= \begin{bmatrix} 0 \\ 0.2 \\ 0.2 \end{bmatrix} \\
+                P(z_3 | x_3) \cdot \sum_{x_4} P(x_4 | x_3) P(z_4 | x_4) &= \begin{bmatrix}
+                    0.6 \\
+                    0.3 \\
+                    0
+                \end{bmatrix} \cdot \begin{bmatrix} 0 \\ 0.2 \\ 0.2 \end{bmatrix} \\ &= \begin{bmatrix} 0 \\ 0.06 \\ 0 \end{bmatrix} \\
+                \sum_{x_3} P(x_3 | x_2) \cdot \begin{bmatrix} 0 \\ 0.06 \\ 0 \end{bmatrix} &= \begin{bmatrix} 0.012 \\ 0.024 \\ 0.036 \end{bmatrix} \\   
+                P(x_{2} | x_1) \cdot P(z_{2} | x_2) \cdot \begin{bmatrix} 0.012 \\ 0.024 \\ 0.036 \end{bmatrix} &= \begin{bmatrix} 0.8 \\ 0.2 \\ 0 \end{bmatrix} \cdot \begin{bmatrix} 0.6 \\ 0.3 \\ 0 \end{bmatrix} \cdot \begin{bmatrix} 0.012 \\ 0.024 \\ 0.036 \end{bmatrix} &= \begin{bmatrix} 0.00576 \\ 0.00144 \\ 0 \end{bmatrix} \\
+            \end{align*}
+
+            \begin{align*} 
+                \intertext{Normalizing the matrix to get the accurate probability we get;} 
+                \begin{bmatrix} 0.8 \\ 0.2 \\ 0 \end{bmatrix}               
+            \end{align*}
+            
+            \textbf{Day 3 $\mid$ where data from future days is also available}
+            \begin{align*}
+                P(x_3 | x_1, z_{2:4}) &= \eta P(x_3 | x_1, z_{2:3})P(z_4 | x_3, x_1, z_{2:3}) \\
+                &= \eta P(x_3 | x_2, z_3)P(z_4 | x_3) \\
+                &= \eta \begin{bmatrix}
+                0.8395 \\
+                0.1605 \\
+                0
+                \end{bmatrix} \cdot \begin{bmatrix}
+                0 \\
+                0.2 \\
+                0
+                \end{bmatrix} \\
+                &= \begin{bmatrix}
+                0 \\
+                1 \\
+                0
+                \end{bmatrix}
+            \end{align*}
+
+            \textbf{Day 4 $\mid$ where data from future days is also available}
+            \begin{align*}
+                P(x_4 | x_1, x_2;x_4) &= P(x_4 | x_3, x_4) \\
+                P(x_4 | x_1, x_2;x_4) &= \eta P(z_4 | x_4)P(x_4 | x_3) \\
+                P(x_4 | x_1, x_2;x_4) &= \begin{bmatrix}
+                0 \\
+                0 \\
+                1
+                \end{bmatrix}
+            \end{align*}
+            Since we have no future days after Day 4, the probability will remain the same for Day 4. 
+        \end{solution}                 
+            
+        \part Consider the same situation. What is the most likely sequence of weather for Days 2 through 4? What is the probability of the most likely sequence?
 
         \begin{solution}
-            %answer here
+            The probability of the sequence of weather is given by
+            \begin{align*}
+            P(z_{2:4}|x_1, z_{2:4}) &= \eta P(z_{2:4}|x_1, z_{2:4})P(x_{2:4}|x_1) \\
+            \intertext{where}
+            P(z_{2:4}|x_1) &= P(z_4|x_3)P(z_3|x_2)P(z_2|x_1) \\
+            \intertext{and}
+            P(x_{2:4}|x_1, z_{2:4}) &= P(z_4|x_4)P(z_3|x_3)P(z_2|x_2)
+            \end{align*}
+
+            Hence, the most likely sequence of weather is \textit{sunny, cloudy, rainy} which has \(0.00576\cdot\dfrac{1}{0.00576+0.00144} = 80\%\) of occurring. There is a \(20\%\) probability of \textit{cloudy, cloudy, rainy} and \(0\%\) probability for all other sequences of weather.
         \end{solution}
     \end{parts}
 
@@ -226,6 +415,7 @@
     \begin{parts}
         \part How many hours did each of you spend on this homework?
         \begin{solution}
+            
         \end{solution}
 
         \part State each group member's specific contribution to this homework assignment.
