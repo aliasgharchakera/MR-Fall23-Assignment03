@@ -47,47 +47,38 @@
     \begin{parts}
         \part Find the uncertainty/covariance in the pose \((x, \dot{x})\) after one time step. Are the two correlated?
         \begin{solution}
+            \textbf{Solution for Part A:}
+            
             \textbf{Derivation of State Update Equations:}
             
             Given the state vector at time \( t \) as \( \mathbf{x}_t = \begin{bmatrix} x_t \\ \dot{x}_t \end{bmatrix} \), and the control input modeled as acceleration with additive Gaussian noise, \( \ddot{x}_t = u_t + \epsilon_t \) where \( \epsilon_t \sim \mathcal{N}(0, \sigma^2) \), the state update equations in discrete time are derived using classic kinematic equations:
             
             The velocity update equation:
-            \begin{equation}
-            \dot{x}_{t+1} = \dot{x}_t + (u_t + \epsilon_t) \Delta t
-            \end{equation}
+            \[ \dot{x}_{t+1} = \dot{x}_t + (u_t + \epsilon_t) \Delta t \]
             which corresponds to the physics equation of motion \( v = u + at \) adapted for discrete time and control input with noise.
             
             The position update equation:
-            \begin{equation}
-            x_{t+1} = x_t + \dot{x}_t \Delta t + \frac{1}{2}(u_t + \epsilon_t) (\Delta t)^2
-            \end{equation}
+            \[ x_{t+1} = x_t + \dot{x}_t \Delta t + \frac{1}{2}(u_t + \epsilon_t) (\Delta t)^2 \]
             which is based on the equation \( s = ut + \frac{1}{2}at^2 \), adapted for discrete time and noisy control input.
             
             \textbf{Covariance Matrix Computation:}
             
             The covariance matrix \(\mathbf{\Sigma}_{t+1}\) of the state after one time step can be computed considering the process noise. Assuming the initial state is known exactly (\(\mathbf{\Sigma}_t = \mathbf{0}\)), the covariance matrix after one time step is given by:
-            \begin{equation}
-            \mathbf{\Sigma}_{t+1} = \mathbf{A}_t \mathbf{\Sigma}_t \mathbf{A}_t^\top + \mathbf{Q}_t
-            \end{equation}
-            where \(\mathbf{A}_t\) is the state transition matrix and \(\mathbf{Q}_t\) is the process noise covariance matrix. The state transition matrix \(\mathbf{A}_t\) is derived from the state update equations, and \(\mathbf{Q}_t\) is computed based on the variance of the noise \(\epsilon_t\). Given \(\mathbf{A}_t\) as
-            \[\mathbf{A}_t = \begin{bmatrix} 1 & \Delta t \\ 0 & 1 \end{bmatrix}\]
+            \[ \mathbf{\Sigma}_{t+1} = \mathbf{A}_t \mathbf{\Sigma}_t \mathbf{A}_t^\top + \mathbf{Q}_t \]
+            where \(\mathbf{A}_t\) is the state transition matrix and \(\mathbf{Q}_t\) is the process noise covariance matrix. Given \(\mathbf{A}_t\) as
+            \[ \mathbf{A}_t = \begin{bmatrix} 1 & \Delta t \\ 0 & 1 \end{bmatrix} \]
             and \(\mathbf{Q}_t\) as
-            \[\mathbf{Q}_t = \begin{bmatrix} \frac{1}{4}(\Delta t)^4 & \frac{1}{2}(\Delta t)^3 \\ \frac{1}{2}(\Delta t)^3 & (\Delta t)^2 \end{bmatrix} \sigma^2\]
+            \[ \mathbf{Q}_t = \begin{bmatrix} \frac{1}{4}(\Delta t)^4 & \frac{1}{2}(\Delta t)^3 \\ \frac{1}{2}(\Delta t)^3 & (\Delta t)^2 \end{bmatrix} \sigma^2 \]
             we can compute \(\mathbf{\Sigma}_{t+1}\) as:
-            \begin{equation}
-            \mathbf{\Sigma}_{t+1} = \mathbf{Q}_t = \begin{bmatrix} \frac{1}{4}(\Delta t)^4 & \frac{1}{2}(\Delta t)^3 \\ \frac{1}{2}(\Delta t)^3 & (\Delta t)^2 \end{bmatrix} \sigma^2
-            \end{equation}
+            \[ \mathbf{\Sigma}_{t+1} = \mathbf{Q}_t = \begin{bmatrix} \frac{1}{4}(\Delta t)^4 & \frac{1}{2}(\Delta t)^3 \\ \frac{1}{2}(\Delta t)^3 & (\Delta t)^2 \end{bmatrix} \sigma^2 \]
             
             This covariance matrix reflects the propagation of uncertainty from the process noise through the system and indicates the correlation between position and velocity after one time step.
-            
-            \textbf{Conclusion:}
-            
-            The state update equations and the covariance matrix demonstrate the effect of control input and its associated noise on the position and velocity of the mobile robot. The covariance matrix, in particular, shows that position and velocity become correlated due to the accumulation of uncertainties introduced by the process noise.
         \end{solution}
-            
-
+        
         \part Suppose we control this robot with a commanded acceleration sequence \(a_1, a_2, a_3, \ldots\) for \(T\) time intervals. Will the final location \(x\) and the final velocity \(\dot{x}\) be correlated for some large value of \(T\)?
         \begin{solution}
+            \textbf{Solution for Part B:}
+            
             Given the discrete-time dynamical system with state vector at time step \( t \) as \( \mathbf{x}_t \) and control input as the acceleration \( u_t \) with additive Gaussian noise \( \epsilon_t \), the system can be described as:
             
             \begin{itemize}
@@ -96,40 +87,20 @@
             \end{itemize}
             
             The state update equation is:
-            \begin{equation}
-                \mathbf{x}_{t+1} = \mathbf{A} \mathbf{x}_t + \mathbf{B} (u_t + \epsilon_t)
-            \end{equation}
+            \[ \mathbf{x}_{t+1} = \mathbf{A} \mathbf{x}_t + \mathbf{B} (u_t + \epsilon_t) \]
             where
-            \[
-            \mathbf{A} = \begin{bmatrix}
-                1 & \Delta t \\
-                0 & 1
-            \end{bmatrix}, \quad
-            \mathbf{B} = \begin{bmatrix}
-                \frac{1}{2} (\Delta t)^2 \\
-                \Delta t
-            \end{bmatrix}, \quad
-            \mathbf{x}_t = \begin{bmatrix}
-                x_t \\
-                \dot{x}_t
-            \end{bmatrix}.
-            \]
+            \[ \mathbf{A} = \begin{bmatrix} 1 & \Delta t \\ 0 & 1 \end{bmatrix}, \quad \mathbf{B} = \begin{bmatrix} \frac{1}{2} (\Delta t)^2 \\ \Delta t \end{bmatrix}, \quad \mathbf{x}_t = \begin{bmatrix} x_t \\ \dot{x}_t \end{bmatrix}. \]
             
             After \( T \) time intervals, the final state \( \mathbf{x}_T \) can be expressed as:
-            \begin{equation}
-                \mathbf{x}_T = \mathbf{A}^T \mathbf{x}_0 + \sum_{t=0}^{T-1} \mathbf{A}^{T-t-1} \mathbf{B} (u_t + \epsilon_t).
-            \end{equation}
+            \[ \mathbf{x}_T = \mathbf{A}^T \mathbf{x}_0 + \sum_{t=0}^{T-1} \mathbf{A}^{T-t-1} \mathbf{B} (u_t + \epsilon_t). \]
             
             The covariance matrix of the final state \( \mathbf{x}_T \), which encapsulates the accumulated uncertainty from the process noise, is given by:
-            \begin{equation}
-                \mathbf{\Sigma}_T = \sum_{t=0}^{T-1} \mathbf{A}^{T-t-1} \mathbf{B} \mathbf{Q} \mathbf{B}^\top (\mathbf{A}^{T-t-1})^\top,
-            \end{equation}
+            \[ \mathbf{\Sigma}_T = \sum_{t=0}^{T-1} \mathbf{A}^{T-t-1} \mathbf{B} \mathbf{Q} \mathbf{B}^\top (\mathbf{A}^{T-t-1})^\top, \]
             where \( \mathbf{Q} \) is the covariance matrix of the process noise \( \epsilon_t \).
             
             The non-zero off-diagonal terms of the covariance matrix \( \mathbf{\Sigma}_T \) indicate a correlation between the final location and velocity. This correlation results from the control input noise, which affects both velocity and position over time due to the system's dynamics.
-            
-            \textbf{Conclusion:} The final location and final velocity of the mobile robot are correlated after \( T \) time intervals. This correlation arises from the propagation of control input noise through the system and the kinematic relationship between position and velocity.
-        \end{solution}            
+        \end{solution}
+                   
     \end{parts}
 
     \question[20]
