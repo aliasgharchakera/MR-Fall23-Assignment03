@@ -1,2 +1,6 @@
-/main.pdf
-/main.synctex.gz
+main.pdf
+*.synctex.gz
+*.aux
+*.log
+*.out
+*.synctex(busy)
