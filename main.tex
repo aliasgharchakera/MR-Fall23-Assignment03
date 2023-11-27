@@ -17,6 +17,10 @@
     postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
 }
 
+\geometry{
+    bottom=2cm, % Adjust this value as needed to leave space for the answer boxes
+}
+
 % Header and footer.
 \pagestyle{headandfoot}
 \runningheadrule
@@ -119,7 +123,7 @@
             \begin{align*}
                 d_k      & = \sqrt{x_k^2 + y_k^2} + \eta_k,                                              \\
                 \theta_k & = \tan^{-1}\left(\frac{y_k}{x_k}\right) + \eta_k.                             \\
-                H_k      & = \begin{bmatrix}
+                C_k      & = \begin{bmatrix}
                                  \frac{x_k}{\sqrt{x_k^2 + y_k^2}} & \frac{y_k}{\sqrt{x_k^2 + y_k^2}} & 0
                              \end{bmatrix} \\
             \end{align*}
@@ -172,34 +176,68 @@
         \begin{solution}
             Using the prediction step of the EKF:
             \begin{align*}
-                \bar{x}_{1}      & = A_{1} \hat{x}_{0},                   \\
-                \bar{\Sigma}_{1} & = A_{1} \Sigma_{0} A_{1}^T
+                \bar{x}_{k}      & = g(\hat{x}_{k-1}),                            \\
+                \bar{\Sigma}_{k} & = G_{k} \Sigma_{k-1} G_{k}^T
                 \intertext{where}
-                A_{1}            & = \begin{bmatrix}
-                                         1 & 0 & -v_0 \Delta t \sin(\theta_0) \\
-                                         0 & 1 & v_0 \Delta t \cos(\theta_0)  \\
+                G_{k}            & = \begin{bmatrix}
+                                         1 & 0 & -v_{k-1} \Delta t \sin(\theta_{k-1}) \\
+                                         0 & 1 & v_{k-1} \Delta t \cos(\theta_{k-1})  \\
                                          0 & 0 & 1
                                      \end{bmatrix} \\
-                \Delta t         & = 1                                    \\
-                v_0              & = 1                                    \\
-                \theta_0         & = 0                                    \\
+                \Delta t         & = 1                                            \\
+                v_0              & = 1                                            \\
+                \theta_0         & = 0                                            \\
                 \hat{x}_{0}      & = \begin{bmatrix}
                                          0 \\ 0 \\ 0
-                                     \end{bmatrix}                       \\
+                                     \end{bmatrix}                               \\
                 \Sigma_{0}       & = \begin{bmatrix}
                                          0.01 & 0    & 0     \\
                                          0    & 0.01 & 0     \\
                                          0    & 0    & 10000
-                                     \end{bmatrix}                  \\
+                                     \end{bmatrix}                          \\
             \end{align*}
 
             Putting the values in the above equations, we get:
             \begin{align*}
                 \bar{x}_{1}      & = \begin{bmatrix}
-                                         0 \\ 0 \\ 0
-                                     \end{bmatrix},         \\
+                                         \hat{x}_{0} + v_0 \Delta t \cos(\theta_0) \\
+                                         \hat{y}_{0} + v_0 \Delta t \sin(\theta_0) \\
+                                         \hat{\theta}_{0}
+                                     \end{bmatrix}
+                = \begin{bmatrix}
+                      0 + (1)(1)\cos(0) \\ 0 + (1)(1)\sin(0) \\ 0
+                  \end{bmatrix}
+                = \begin{bmatrix}
+                      1 \\ 0 \\ 0
+                  \end{bmatrix},                                                                                                \\
                 \bar{\Sigma}_{1} & = \begin{bmatrix}
-                                         0.01 & 0      & 0      \\
+                                         1 & 0 & -v_0 \Delta t \sin(\theta_0) \\
+                                         0 & 1 & v_0 \Delta t \cos(\theta_0)  \\
+                                         0 & 0 & 1
+                                     \end{bmatrix} \begin{bmatrix}
+                                                       0.01 & 0    & 0     \\
+                                                       0    & 0.01 & 0     \\
+                                                       0    & 0    & 10000
+                                                   \end{bmatrix} \begin{bmatrix}
+                                                                     1                            & 0                           & 0 \\
+                                                                     0                            & 1                           & 0 \\
+                                                                     -v_0 \Delta t \sin(\theta_0) & v_0 \Delta t \cos(\theta_0) & 1
+                                                                 \end{bmatrix} \\
+                                 & = \begin{bmatrix}
+                                         1 & 0 & 0 \\
+                                         0 & 1 & 1 \\
+                                         0 & 0 & 1
+                                     \end{bmatrix} \begin{bmatrix}
+                                                       0.01 & 0    & 0     \\
+                                                       0    & 0.01 & 0     \\
+                                                       0    & 0    & 10000
+                                                   \end{bmatrix} \begin{bmatrix}
+                                                                     1 & 0 & 0 \\
+                                                                     0 & 1 & 0 \\
+                                                                     0 & 1 & 1
+                                                                 \end{bmatrix}                                                 \\
+                                 & = \begin{bmatrix}
+                                         0.01 & 0     & 0     \\
                                          0    & 10000 & 10000 \\
                                          0    & 10000 & 10000
                                      \end{bmatrix}
@@ -216,6 +254,96 @@
 
         \part Now incorporate a noisy measurement i.e. \(z = d + \epsilon\) where \(\epsilon\) is zero-mean with covariance 0.01. Again draw the uncertainty ellipse on the same plot after incorporating the measurement.
         \begin{solution}
+            The observation model in this problem is given by:
+            \begin{align*}
+                z_k    & = \sqrt{x_k^2 + y_k^2} + \eta_k                                                 \\
+                \eta_k & \sim N(0, \sigma^2)                                                             \\
+                \intertext{We know that,}
+                z_k    & = h(x_k) + \eta_k                                                               \\
+                K_k    & = \bar{\Sigma}_k H_k^T \left(H_k \bar{\Sigma}_k H_k^T + Q_k\right)^{-1}         \\
+                \intertext{where}
+                H_k    & = \begin{bmatrix}
+                               \dfrac{x_k}{\sqrt{x_k^2 + y_k^2}} & \dfrac{y_k}{\sqrt{x_k^2 + y_k^2}} & 0
+                           \end{bmatrix} \\
+                \intertext{Therefore, we can calculate \(K_k\) as follows:}
+                K_1    & = \Sigma_1 H_1^T \left(H_1 \Sigma_1 H_1^T + Q_1\right)^{-1}                     \\
+                H_1    & = \begin{bmatrix}
+                               \dfrac{1}{\sqrt{1^2 + 0^2}} & \dfrac{0}{\sqrt{1^2 + 0^2}} & 0
+                           \end{bmatrix}
+                = \begin{bmatrix}
+                      1 & 0 & 0
+                  \end{bmatrix}
+            \end{align*}                                                                                                 \\
+
+            From previous calculation we know that,
+
+            \begin{align*}
+                \Sigma_1 & = \begin{bmatrix}
+                                 0.01 & 0     & 0     \\
+                                 0    & 10000 & 10000 \\
+                                 0    & 10000 & 10000
+                             \end{bmatrix}                                                                                    \\
+                K_1      & = \begin{bmatrix}
+                                 0.01 & 0    & 0     \\
+                                 0    & 0.01 & 0     \\
+                                 0    & 0    & 10000
+                             \end{bmatrix} \begin{bmatrix}
+                                               1 \\ 0 \\ 0
+                                           \end{bmatrix} \left(\begin{bmatrix}
+                                                                   1 & 0 & 0
+                                                               \end{bmatrix} \begin{bmatrix}
+                                                                                 0.01 & 0    & 0     \\
+                                                                                 0    & 0.01 & 0     \\
+                                                                                 0    & 0    & 10000
+                                                                             \end{bmatrix} \begin{bmatrix}
+                                                                                               1 \\ 0 \\ 0
+                                                                                           \end{bmatrix} + \begin{bmatrix}
+                                                                                                               0.01
+                                                                                                           \end{bmatrix}\right)^{-1} \\
+                         & = \begin{bmatrix}
+                                 0.5 \\ 0 \\ 0
+                             \end{bmatrix}
+            \end{align*}
+            For $\hat{x}_1$,
+            \begin{align*}
+                \hat{x}_1 & = \bar{x}_1 + K_1 \left(z_1 - h(\bar{x}_1)\right)                   \\
+                          & = \begin{bmatrix}
+                                  1 \\ 0 \\ 0
+                              \end{bmatrix} + \begin{bmatrix}
+                                                  0.5 \\ 0 \\ 0
+                                              \end{bmatrix} \left(z_1 - \sqrt{1^2 + 0^2}\right) \\
+            \end{align*}
+
+            $z_1 \sim N(1, 0.01)$, if we put in the mean we get,
+
+            \begin{align*}
+                \hat{x}_1 & = \begin{bmatrix}
+                                  1 \\ 0 \\ 0
+                              \end{bmatrix} + \begin{bmatrix}
+                                                  0.5 \\ 0 \\ 0
+                                              \end{bmatrix} \left(1 - 1\right)
+                = \begin{bmatrix}
+                      1 \\ 0 \\ 0
+                  \end{bmatrix}
+            \end{align*}
+            For $\Sigma_1$,
+            \begin{align*}
+                \Sigma_1 & = \left(I - K_1 H_1\right) \bar{\Sigma}_1                           \\
+                         & = \left(I - \begin{bmatrix}
+                                               0.5 \\ 0 \\ 0
+                                           \end{bmatrix} \begin{bmatrix}
+                                                             1 & 0 & 0
+                                                         \end{bmatrix}\right) \begin{bmatrix}
+                                                                              0.01 & 0     & 0     \\
+                                                                              0    & 10000 & 10000 \\
+                                                                              0    & 10000 & 10000
+                                                                          \end{bmatrix} \\
+                         & = \begin{bmatrix}
+                                 0.005 & 0     & 0     \\
+                                 0     & 10000 & 10000 \\
+                                 0     & 10000 & 10000
+                             \end{bmatrix}
+            \end{align*}
         \end{solution}
 
         \part What would have been your estimate for the \(x\)-\(y\) at time 1 considering (a)? What would be your comments about the estimate provided by the EKF? What would have happened if the initial orientation were known but we were uncertain about the \(y\) coordinate?

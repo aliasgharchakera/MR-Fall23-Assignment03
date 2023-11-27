@@ -23,6 +23,7 @@ for i = 1:1000
 end
 % Plot x-y state samples at time 1
 scatter(propagated_states(:, 1), propagated_states(:, 2));
+% scatter(initial_samples(:, 1), initial_samples(:, 2), 'r')
 xlabel('X');
 ylabel('Y');
 title('Samples of X-Y state at time 1');
