@@ -9,3 +9,4 @@ main.pdf
 *.blg
 *.toc
 *.fdb_latexmk
+*.fls

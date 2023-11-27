@@ -245,11 +245,11 @@
 
             The uncertainty ellipse of a Gaussian with mean equal to \(\bar{x}_1\) and
             covariance \(\bar{\Sigma}_1\) is shown in the following figure:
-            % \begin{figure}[H]
-            %     \centering
-            %     \includegraphics[width=0.8\textwidth]{images/2c.png}
-            %     \caption{Uncertainty ellipse of a Gaussian with mean equal to \(\bar{x}_1\) and covariance \(\bar{\Sigma}_1\).}
-            % \end{figure}
+            \begin{figure}[H]
+                \centering
+                \includegraphics[width=0.8\textwidth]{images/2c.png}
+                \caption{Uncertainty ellipse of a Gaussian with mean equal to \(\bar{x}_1\) and covariance \(\bar{\Sigma}_1\).}
+            \end{figure}
         \end{solution}
 
         \part Now incorporate a noisy measurement i.e. \(z = d + \epsilon\) where \(\epsilon\) is zero-mean with covariance 0.01. Again draw the uncertainty ellipse on the same plot after incorporating the measurement.
@@ -344,10 +344,41 @@
                                  0     & 10000 & 10000
                              \end{bmatrix}
             \end{align*}
+
+            The uncertainty ellipse of a Gaussian with mean equal to \(\hat{x}_1\) and
+            covariance \(\Sigma_1\) with the measurement is shown in the following figure:
+            \begin{figure}[H]
+                \centering
+                \includegraphics[width=0.8\textwidth]{images/2d.png}
+                \caption{Uncertainty ellipse of a Gaussian with mean equal to \(\hat{x}_1\) and covariance \(\Sigma_1\) with the measurement.}
+            \end{figure}
         \end{solution}
 
         \part What would have been your estimate for the \(x\)-\(y\) at time 1 considering (a)? What would be your comments about the estimate provided by the EKF? What would have happened if the initial orientation were known but we were uncertain about the \(y\) coordinate?
         \begin{solution}
+            Given the scenario in part (a), where the robot moves flawlessly without any noise and the initial orientation is known, the estimate for the x-y coordinates at time 1 would solely rely on the robot's flawless motion.
+
+            For instance, if the robot starts at the origin \((0, 0)\) with a known initial
+            orientation, and it moves flawlessly in a straight line without any noise, the
+            x-coordinate would change based on the distance traveled along the x-axis, and
+            the y-coordinate would remain at \(0\) due to the straight-line movement.
+
+            The EKF's estimate at time 1 is influenced by both the prediction step (motion
+            model) and the measurement update (incorporating noisy measurements). In the
+            provided scenario, the EKF's prediction step essentially assumes a flawless
+            movement without any noise. Incorporating a noisy measurement, as done in the
+            EKF, helps refine the estimate by considering sensor readings, thus potentially
+            improving the accuracy of the estimate.
+
+            If the initial orientation were known but there was uncertainty about the
+            y-coordinate, the EKF would take this uncertainty into account during its
+            prediction and update steps. In such a scenario, the EKF would provide an
+            estimate that combines the information from the motion model and the sensor
+            readings to estimate the state, considering the uncertainty about the
+            y-coordinate. This would likely result in an estimate that combines the prior
+            knowledge (known initial orientation) with the sensor measurements to refine
+            the estimation process, leading to a more accurate estimation of the robot's
+            state.
         \end{solution}
     \end{parts}
 
@@ -609,22 +640,68 @@
     \begin{parts}
         \part How many hours did each of you spend on this homework?
         \begin{solution}
+            \subsection*{Ali Asghar Yousuf}
+            21 hours
 
+            \subsection*{Muhammad Azeem Haider}
         \end{solution}
 
         \part State each group member's specific contribution to this homework assignment.
         \begin{solution}
+            \subsection*{Ali Asghar Yousuf}
+            \begin{enumerate}
+                \item Question 2
+            \end{enumerate}
+
+            \subsection*{Muhammad Azeem Haider}
+            \begin{enumerate}
+                \item Question 1
+                \item Question 3
+            \end{enumerate}
         \end{solution}
 
         \part Do you have any specific advice for students attempting this homework next year?
         \begin{solution}
-            \textbf{Azeem} Start the homework early, you may look at the questions and tell yourself yeah these are simple questions, markov chains aint that difficult, and state estimation is not all that challenging but when you actually start doing the questions you realize you know too little and the questions really test your knowledge. Start early, no matter what your mind tells you. In addition, know your concepts, it is essential to know where you are struggling and fix it through this homework and take help from the instructor and your peers.
+            \subsection*{Ali Asghar Yousuf}
+            Rushing through the homework is not a good idea, it is better to take your time
+            and understand the concepts and then attempt the questions, otherwise you will
+            end up wasting more time than you would have saved by rushing. In addition, it
+            is better to start early and ask for help from the instructor and your peers if
+            you are stuck on a question. Lastly, try enjoying the homework, it is a great
+            way to learn and apply the concepts taught in class, and getting the results
+            visualized really helps in understanding the concepts.
+        
+            \subsection*{Muhammad Azeem Haider}
+            Start the homework early, you may look at the questions and tell yourself yeah
+            these are simple questions, markov chains aint that difficult, and state
+            estimation is not all that challenging but when you actually start doing the
+            questions you realize you know too little and the questions really test your
+            knowledge. Start early, no matter what your mind tells you. In addition, know
+            your concepts, it is essential to know where you are struggling and fix it
+            through this homework and take help from the instructor and your peers.
         \end{solution}
 
         \part Provide a self-reflection in the form of a note or a concept map.
         \begin{solution}
-            \textbf{Azeem}
-            Attempting questions can often present a challenge, as they serve as practical applications following theoretical lectures. I initially approached Question 3, which appeared to be the most straightforward; however, it proved to be quite the contrary. Grasping the underlying principles of Markov chains and Bayesian estimation was a complex task. Furthermore, employing state estimation techniques to resolve the covariance matrix in question 1 added to the difficulty of the homework. The correctness of my approach to Question 1 remains uncertain. Comprehending covariance matrices and formulating an argument for correlation in Question 1 was a particularly intricate aspect of this problem.
+            \subsection*{Ali Asghar Yousuf}
+            This homework was a great way to apply the concepts taught in class. It was
+            challenging and required a lot of effort to complete. I learned a lot from this
+            homework, especially about state estimation and how to apply it to real world
+            problems. Applying the Kalman filter really helped me piece together the
+            concepts taught in class and understand them better.
+
+
+            \subsection*{Muhammad Azeem Haider}
+            Attempting questions can often present a challenge, as they serve as practical
+            applications following theoretical lectures. I initially approached Question 3,
+            which appeared to be the most straightforward; however, it proved to be quite
+            the contrary. Grasping the underlying principles of Markov chains and Bayesian
+            estimation was a complex task. Furthermore, employing state estimation
+            techniques to resolve the covariance matrix in question 1 added to the
+            difficulty of the homework. The correctness of my approach to Question 1
+            remains uncertain. Comprehending covariance matrices and formulating an
+            argument for correlation in Question 1 was a particularly intricate aspect of
+            this problem.
         \end{solution}
     \end{parts}
 \end{questions}
