@@ -62,16 +62,16 @@
                 \dot{x}_{k+1} & = \dot{x}_k + \ddot{x}_k \Delta t.
             \end{align*}
 
-            The acceleration includes a deterministic part and a random noise component:
-            \begin{align*}
-                \ddot{x}_k & = a_k + \eta_k,      \\
-                \eta_k     & \sim N(0, \sigma^2).
-            \end{align*}
-
             The state transition incorporating noise becomes:
             \begin{align*}
                 x_{k+1}       & = x_k + \dot{x}_k \Delta t + \frac{1}{2} (a_k + \eta_k) \Delta t^2, \\
                 \dot{x}_{k+1} & = \dot{x}_k + (a_k + \eta_k) \Delta t.
+                `\end{align*}
+
+            The acceleration includes a deterministic part and a random noise component:
+            \begin{align*}
+                \ddot{x}_k & = a_k + \eta_k,      \\
+                \eta_k     & \sim N(0, \sigma^2).
             \end{align*}
 
             \[
@@ -86,14 +86,81 @@
                 \item \( \sigma_{\dot{x}\dot{x}} \) is the variance of the velocity \( \dot{x} \),
                 \item \( \sigma_{x\dot{x}} \) is the covariance between position \( x \) and velocity \( \dot{x} \).
             \end{itemize}
-            The non-zero \( \sigma_{x\dot{x}} \) implies that the position and velocity are correlated after one time step, influenced by the acceleration noise.
+
+            Assume that there are two Jacobean's $J_1$ and $J_2$ which we will find as
+
+            \begin{equation}
+                \Delta_{x} f \quad
+            \end{equation}
+            \begin{equation}
+                \quad \Delta_{u} f
+            \end{equation}
+            As a result we can express our two Jacobean's in the following manner;
+            \begin{align*}
+                J_1 = \begin{bmatrix}
+                          1 & \Delta t \\
+                          0 & 1
+                      \end{bmatrix} \\
+                J_2 = \begin{bmatrix}
+                          \dfrac{1}{2} \Delta t^2 \\
+                          \Delta t
+                      \end{bmatrix}
+            \end{align*}
+            Using the update rule we get the following equation
+            \begin{equation}
+                P_{k+1} = J_1 P_k J_1^T + J_2 \sum_{uu} J_2^T
+            \end{equation}
+
+            Substituting the values for Jacobean $J_1$ and $J_2$ in the equation, we get;
+            \begin{align*}
+                P_{k+1} = \begin{bmatrix} 1 & \Delta t \\ 0 & 1 \end{bmatrix}
+                P_k
+                \begin{bmatrix} 1 & 0 \\ \Delta t & 1 \end{bmatrix} +
+                \begin{bmatrix} \dfrac{1}{4}\Delta t^4 \sigma^2 & \dfrac{1}{2}\Delta t^3 \sigma^2 \\ \dfrac{1}{2}\Delta t^3 \sigma^2 & \Delta t^3 \sigma^2 \end{bmatrix}
+            \end{align*}
+            For the purpose of our solution, we assume that the covariance at time step $P_0$ is equal to zero. This makes this part of the equation zero;
+            \begin{align*}
+                \begin{bmatrix} 1 & \Delta t \\ 0 & 1 \end{bmatrix}
+                P_k \begin{bmatrix} 1 & 0 \\ \Delta t & 1 \end{bmatrix} & = 0
+            \end{align*}
+
+            As a result the covariance when time step is equal to one is as followed;
+
+            \begin{align*}
+                \begin{bmatrix} \dfrac{1}{4}\Delta t^4 \sigma^2 & \dfrac{1}{2}\Delta t^3 \sigma^2 \\ \dfrac{1}{2}\Delta t^3 \sigma^2 & \Delta t^3 \sigma^2 \end{bmatrix}
+            \end{align*}
         \end{solution}
 
         \part Suppose we control this robot with a commanded acceleration sequence \(a_1, a_2, a_3, \ldots\) for \(T\) time intervals. Will the final location \(x\) and the final velocity \(\dot{x}\) be correlated for some large value of \(T\)?
         \begin{solution}
-            Over a large number of time intervals \(T\), the final location \(x\) and velocity \(\dot{x}\) will accumulate changes due to the commanded accelerations and noise. As \(T\) increases, the influence of initial conditions on the final state diminishes, and the cumulative effect of accelerations becomes more significant. If the accelerations are uncorrelated over time and the noise is zero-mean, the final position and velocity may become less correlated. However, any patterns or dependencies in the commanded accelerations could induce a correlation between the final position and velocity.
-        \end{solution}
+            Given the state transition matrix \( J_1 \) and the noise covariance matrix \( Q \) from part a, we can analyze the correlation between the final position \( x \) and velocity \( \dot{x} \) after \( T \) time intervals. The state covariance matrix \( P_T \) evolves according to the recursive relationship:
 
+            \[
+                P_T = J_1 P_{T-1} J_1^T + Q
+            \]
+
+            Assuming the initial covariance \( P_0 = \mathbf{0} \), the recursive expansion
+            of \( P_T \) is:
+
+            \[
+                P_T = J_1^T P_0 (J_1^T)^T + \sum_{i=0}^{T-1} J_1^i Q (J_1^T)^i
+            \]
+
+            Given that \( P_0 = \mathbf{0} \), the evolution of \( P_T \) is solely due to
+            the noise matrix \( Q \) being propagated through the system dynamics:
+
+            \[
+                P_T = \sum_{i=0}^{T-1} J_1^i Q (J_1^T)^i
+            \]
+
+            The off-diagonal terms of \( P_T \), \( \sigma_{x\dot{x}} \), represent the
+            covariance between position \( x \) and velocity \( \dot{x} \). If \( J_1 \)
+            has values with magnitude greater than or equal to one, or if \( Q \)
+            introduces sufficient noise at each step, these off-diagonal terms may not
+            converge to zero even as \( T \) becomes large. This implies that the final
+            position \( x \) and velocity \( \dot{x} \) will be correlated, reflecting the
+            cumulative effect of the process noise on the system's state over time.
+        \end{solution}
     \end{parts}
 
     \question[20]
@@ -511,16 +578,13 @@
             are only using the data available to us.
 
             \textbf{Day 4 $\mid$ only data available to the day in question is used}
+
             \begin{align*}
                 P(x_4 | x_1, x_2;x_4) & = P(x_4 | x_3, x_4)             \\
                 P(x_4 | x_1, x_2;x_4) & = \eta P(z_4 | x_4)P(x_4 | x_3) \\
                 P(x_4 | x_1, x_2;x_4) & = \begin{bmatrix}
-                                              0 \\
-                                              0 \\
-                                              1
-                                          \end{bmatrix}
+                                              0 \\ 0 \\ 1 \end{bmatrix}
             \end{align*}
-
             We know for sure that on the fourth day it will rain if the sensor has
             predicted it to rain.
 
@@ -533,10 +597,12 @@
                                           & = \eta P(x_{2} | x_1) P(z_{2} | x_2) \sum_{x_3} P(x_3 | x_2, z_2) P(z_{3:4} | x_2)                                  \\
                                           & = \eta P(x_{2} | x_1) P(z_{2} | x_2) \sum_{x_3} P(x_3 | x_2) P(z_{3:4} | x_3, x_2)                                  \\
                                           & = \eta P(x_{2} | x_1) P(z_{2} | x_2) \sum_{x_3} P(x_3 | x_2) P(z_3 | x_3) P(z_{4:3} | x_3)                          \\
-                                          & = \eta P(x_{2} | x_1) P(z_{2} | x_2) \sum_{x_3} P(x_3 | x_2) P(z_3 | x_3) \sum_{x_4} P(x_4 | x_3) P(z_4 | x_4, x_3) \\
-                                          & = \eta P(x_{2} | x_1) P(z_{2} | x_2) \sum_{x_3} P(x_3 | x_2) P(z_3 | x_3) \sum_{x_4} P(x_4 | x_3) P(z_4 | x_3)      \\
-                                          & = \eta P(x_{2} | x_1) P(z_{2} | x_2) \sum_{x_3} P(x_3 | x_2) P(z_3 | x_3) \sum_{x_4} P(x_4 | x_3) P(z_4 | x_4)      \\
+                                          & = \eta P(x_{2} | x_1) P(z_{2} | x_2) \sum_{x_3} P(x_3 | x_2) P(z_3 | x_3) \sum_{x_4} P(x_4 | x_3) P(z_4 | x_4, x_3)
             \end{align*}
+            Simplifying the equation, we finally get;
+            \begin{equation}
+                \eta P(x_{2} | x_1) P(z_{2} | x_2) \sum_{x_3} P(x_3 | x_2) P(z_3 | x_3) \sum_{x_4} P(x_4 | x_3) P(z_4 | x_4)
+            \end{equation}
             % \vspace{-10mm}
             \begin{align*}
                 P(z_4 | x_4)                                                                                    & = \begin{bmatrix}
@@ -548,23 +614,26 @@
                                                                                                                         0.6 \\
                                                                                                                         0.3 \\
                                                                                                                         0
-                                                                                                                    \end{bmatrix}                                                                                                                                                                                                          \\
-                \sum_{x_4} P(x_4 | x_3) P(z_4 | x_4)                                                            & = \begin{bmatrix} 0 \\ 0.2 \\ 0.2 \end{bmatrix}                                                                                                                                                                           \\
+                                                                                                                    \end{bmatrix}                                                                                                                                                                                                          \\                                          \sum_{x_4} P(x_4 | x_3) P(z_4 | x_4) & = \begin{bmatrix} 0 \\ 0.2 \\ 0.2 \end{bmatrix} \\
                 P(z_3 | x_3) \cdot \sum_{x_4} P(x_4 | x_3) P(z_4 | x_4)                                         & = \begin{bmatrix}
                                                                                                                         0.6 \\
                                                                                                                         0.3 \\
                                                                                                                         0
-                                                                                                                    \end{bmatrix} \cdot \begin{bmatrix} 0 \\ 0.2 \\ 0.2 \end{bmatrix}                                                                                                                                                       \\ &= \begin{bmatrix} 0 \\ 0.06 \\ 0 \end{bmatrix} \\
+                                                                                                                    \end{bmatrix} \cdot \begin{bmatrix} 0 \\ 0.2 \\ \end{bmatrix}                                                                                                                                                           \\ &= \begin{bmatrix} 0 \\ 0.06 \\ 0 \end{bmatrix} \\
                 \sum_{x_3} P(x_3 | x_2) \cdot \begin{bmatrix} 0 \\ 0.06 \\ 0 \end{bmatrix}                      & = \begin{bmatrix} 0.012 \\ 0.024 \\ 0.036 \end{bmatrix}                                                                                                                                                                   \\
                 P(x_{2} | x_1) \cdot P(z_{2} | x_2) \cdot \begin{bmatrix} 0.012 \\ 0.024 \\ 0.036 \end{bmatrix} & = \begin{bmatrix} 0.8 \\ 0.2 \\ 0 \end{bmatrix} \cdot \begin{bmatrix} 0.6 \\ 0.3 \\ 0 \end{bmatrix} \cdot \begin{bmatrix} 0.012 \\ 0.024 \\ 0.036 \end{bmatrix} & = \begin{bmatrix} 0.00576 \\ 0.00144 \\ 0 \end{bmatrix} \\
             \end{align*}
-
+            Normalizing the matrix to get the accurate probability we get
             \begin{align*}
-                \intertext{Normalizing the matrix to get the accurate probability we get;}
                 \begin{bmatrix} 0.8 \\ 0.2 \\ 0 \end{bmatrix}
             \end{align*}
+            \textbf{Day 3 $\mid$ where data from future days is also available \\}
+            Using the forward backward algorithm for hidden markov models we get the following equation, where the first term is the forward probability accounting for all the information we have up until now, and the second term is the backward. The backward probability gets simplified to;
+            \begin{align*}
+                P(z_4 | x_3)
+            \end{align*}
+            Since we do not know the state of Day 3 at this point.
 
-            \textbf{Day 3 $\mid$ where data from future days is also available}
             \begin{align*}
                 P(x_3 | x_1, z_{2:4}) & = \eta P(x_3 | x_1, z_{2:3})P(z_4 | x_3, x_1, z_{2:3}) \\
                                       & = \eta P(x_3 | x_2, z_3)P(z_4 | x_3)                   \\
@@ -577,6 +646,11 @@
                                                                        0.2 \\
                                                                        0
                                                                    \end{bmatrix}              \\
+                                      & = \eta \cdot \begin{bmatrix}
+                                                         0      \\
+                                                         0.0321 \\
+                                                         0
+                                                     \end{bmatrix}                            \\
                                       & = \begin{bmatrix}
                                               0 \\
                                               1 \\
@@ -594,7 +668,7 @@
                                               1
                                           \end{bmatrix}
             \end{align*}
-            Since we have no future days after Day 4, the probability will remain the same for Day 4.
+            Since we have no future days after Day 4 and the sensor readings are very rigid regarding what the probabilities are when the sensor reads raining, the probability will remain the same for Day 4.
         \end{solution}
 
         \part Consider the same situation. What is the most likely sequence of weather for Days 2 through 4? What is the probability of the most likely sequence?
@@ -603,16 +677,42 @@
             The probability of the sequence of weather is given by
             \begin{align*}
                 P(z_{2:4}|x_1, z_{2:4}) & = \eta P(z_{2:4}|x_1, z_{2:4})P(x_{2:4}|x_1) \\
-                \intertext{where}
                 P(z_{2:4}|x_1)          & = P(z_4|x_3)P(z_3|x_2)P(z_2|x_1)             \\
-                \intertext{and}
                 P(x_{2:4}|x_1, z_{2:4}) & = P(z_4|x_4)P(z_3|x_3)P(z_2|x_2)
             \end{align*}
 
-            Hence, the most likely sequence of weather is \textit{sunny, cloudy, rainy}
-            which has \(0.00576\cdot\dfrac{1}{0.00576+0.00144} = 80\%\) of occurring. There
-            is a \(20\%\) probability of \textit{cloudy, cloudy, rainy} and \(0\%\)
-            probability for all other sequences of weather.
+            We can create a table to show the probabilities of the only two possible
+            sequences, there are only two possible sequences because of the existence of
+            probability 0 in other sequences for some condition.
+
+            \begin{tabular}[h]{|c|c|c|c|c|c|c|c|c|}
+                \hline
+                $x_2$ & $x_3$ & $x_4$ & $P(z_4|x_4)$ & $P(z_3|x_3)$ & $P(z_2|x_2)$ & $P(x_4|x_3)$ & $P(x_3|x_2)$ & $P(x_2|x_1)$ \\
+                \hline
+                S     & C     & R     & 1            & 0.3          & 0.6          & 0.2          & 0.2          & 0.8          \\
+                \hline
+                C     & C     & R     & 1            & 0.3          & 0.3          & 0.2          & 0.4          & 0.2          \\
+                \hline
+            \end{tabular}
+
+            Multiplying the probabilities of the two sequences we get the following answer
+
+            \newpage
+
+            \begin{tabular}[h]{|c|c|}
+                \hline
+                Sequence & $P(x_{2:4}|x_1, z_{2:4})$ \\
+                \hline
+                S C R    & 5.76 $\times$ $10^{-3}$   \\
+                \hline
+                C C R    & 1.44 $\times$ $10^{-3}$   \\
+                \hline
+            \end{tabular}
+
+            The most likely sequence of weather is \textit{sunny, cloudy, rainy} which has
+            a probability of 80\% after being normalized. The probabilities for all the
+            other sequences of weather come out to be 0\% except for the sequence where the
+            weather goes from cloudy, cloudy, rainy, which has a probability of 20\%.
         \end{solution}
     \end{parts}
 
@@ -641,9 +741,10 @@
         \part How many hours did each of you spend on this homework?
         \begin{solution}
             \subsection*{Ali Asghar Yousuf}
-            21 hours
+            27 hours
 
             \subsection*{Muhammad Azeem Haider}
+            35 hours
         \end{solution}
 
         \part State each group member's specific contribution to this homework assignment.
@@ -670,15 +771,16 @@
             you are stuck on a question. Lastly, try enjoying the homework, it is a great
             way to learn and apply the concepts taught in class, and getting the results
             visualized really helps in understanding the concepts.
-        
+
             \subsection*{Muhammad Azeem Haider}
             Start the homework early, you may look at the questions and tell yourself yeah
-            these are simple questions, markov chains aint that difficult, and state
+            these are simple questions, markov chains are not that difficult, and state
             estimation is not all that challenging but when you actually start doing the
             questions you realize you know too little and the questions really test your
             knowledge. Start early, no matter what your mind tells you. In addition, know
             your concepts, it is essential to know where you are struggling and fix it
             through this homework and take help from the instructor and your peers.
+
         \end{solution}
 
         \part Provide a self-reflection in the form of a note or a concept map.
@@ -690,7 +792,6 @@
             problems. Applying the Kalman filter really helped me piece together the
             concepts taught in class and understand them better.
 
-
             \subsection*{Muhammad Azeem Haider}
             Attempting questions can often present a challenge, as they serve as practical
             applications following theoretical lectures. I initially approached Question 3,
@@ -699,9 +800,8 @@
             estimation was a complex task. Furthermore, employing state estimation
             techniques to resolve the covariance matrix in question 1 added to the
             difficulty of the homework. The correctness of my approach to Question 1
-            remains uncertain. Comprehending covariance matrices and formulating an
-            argument for correlation in Question 1 was a particularly intricate aspect of
-            this problem.
+            remains uncertain.
+
         \end{solution}
     \end{parts}
 \end{questions}
