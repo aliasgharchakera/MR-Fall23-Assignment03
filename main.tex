@@ -717,9 +717,17 @@
     \end{parts}
 
     \question[20]
+    In this problem, you'll implement EKF-based landmark localization, based on the case study
+    in [1, 5.6.8.5]. Contrary to the example discussed in class, this problem does not have any
+    physical landmarks. Instead, a map, M, is provided to the robot in the form of parameters for
+    lines in the environment; one line corresponding to each wall in the environment. The robot
+    is equipped with a Lidar that generates a 360◦ scan, lines are extracted from the lidar scan
+    at each time step1, and the parameters of these detected lines will be passed to the EKF
+    algorithm as measurements.
     \begin{parts}
         \part Complete the incrementalLocalization and all of its subsidiary functions.
         \begin{solution}
+
         \end{solution}
 
         \part Comment on the performance of the EKF-based localization after running the simulation for a longer time.

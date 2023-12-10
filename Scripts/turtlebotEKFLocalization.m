@@ -18,7 +18,7 @@ params.WHEEL_DIA = 0.066;
 
 % Connect to the TurtleBot using the IP address obtained from setup.
 % Add your respective Linux IP here. 
-rosinit("192.168.210.129",11311);
+rosinit("192.168.14.128",11311);
 
 % The subscriber receives the laser scan data from the robot. The publisher
 % sends velocity commands to the robot. Gazebo doesn't have a built-in
@@ -67,7 +67,7 @@ rate = rateControl(10);
 % in place. Drive the robot by sending a message containing the angular
 % velocity and the desired linear velocity using the ROS publisher.
 prevTime = 1;
-while rate.TotalElapsedTime < 30
+while rate.TotalElapsedTime < 50
 
 	% Get laser scan data and create a lidarScan object
 	scanMsg = receive(laserSub);
@@ -124,9 +124,9 @@ while rate.TotalElapsedTime < 30
     % Extract lines
     cart(:,1) = cart(:,1)-0.032;    
     [theta,rho] = cart2pol(cart(:,1),cart(:,2));
-    [xhat, P, xpri] = incrementalLocalization(xhat, P, u, Q, [theta'; rho'], M, params, sqrt(10), params.WHEEL_SEP);
+    [xhat, P, Xpri] = incrementalLocalization(xhat, P, u, Q, [theta'; rho'], M, params, sqrt(10), params.WHEEL_SEP);
     xhat_seq = [xhat_seq, xhat];
-    xbar_seq = [xbar_seq, xpri];
+    xbar_seq = [xbar_seq, Xpri];
     waitfor(rate);
 end
 
