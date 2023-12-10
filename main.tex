@@ -6,7 +6,7 @@
 \usepackage{graphicx}
 \usepackage{tikz}
 \usepackage{listings}
-% \usepackage{subfig}
+\usepackage{subfig}
 \usepackage{float}
 
 \lstset{
@@ -724,17 +724,43 @@
     is equipped with a Lidar that generates a 360◦ scan, lines are extracted from the lidar scan
     at each time step1, and the parameters of these detected lines will be passed to the EKF
     algorithm as measurements.
+
+    \begin{itemize}
+        \item Launch Gazebo Office from your VMWare desktop.
+        \item The main script file that will interact with Gazebo is
+              turtlebotEKFLocalization.m. Add your IP.
+        \item The wheel separation and wheel diameter are defined at the beginning of this
+              file and can be accessed from the params structure.
+        \item Complete the incrementalLocalization and all of its subsidiary functions.
+        \item Run the simulation for a longer time and comment on the performance of the
+              EKF-based localization.
+        \item The measurement uncertainty covariance matrix R is computed from the
+              uncertainty of the lidar. Refer to Section 4.7.1.2 in [1] for more details.
+    \end{itemize}
     \begin{parts}
-        \part Complete the incrementalLocalization and all of its subsidiary functions.
+        \part Code
         \begin{solution}
 
         \end{solution}
 
-        \part Comment on the performance of the EKF-based localization after running the simulation for a longer time.
+        \part Results
         \begin{solution}
+            The results for running the simulation for $T=30$ and $T=50$ are shown in the following figures:
+            \begin{figure}[H]
+                \centering
+                \subfloat[Results for running the simulation for $T=30$.]{\includegraphics[width=0.45\textwidth]{images/T=30.png}}
+                \hfill
+                \subfloat[Results for running the simulation for $T=50$.]{\includegraphics[width=0.45\textwidth]{images/T=50.png}}
+                \caption{Comparison of simulation results for different time steps.}
+            \end{figure}
         \end{solution}
 
-        \part Provide an explanation with reference to code on how the measurement uncertainty covariance matrix $R$ is computed from the uncertainty of the lidar.
+        \part Discussion
+        \begin{solution}
+            As the time step increases, the EKF-based localization outperforms odometry due to its ability to correct errors. This results in more accurate and reliable positioning over time, as evidenced by the attached plots, whereas odometry leads to less precise localization due to error accumulated as the time increases.
+        \end{solution}
+
+        \part Measurement Uncertainty Covariance Matrix $R$
         \begin{solution}
             The measurement uncertainty covariance matrix $R$ is computed in the \texttt{extractLinesPolar.m} file.
             The covariance is being computed in the \texttt{fitLinePolar.m} file. After measuring $\rho$ and
@@ -743,10 +769,6 @@
             matrix $R$ using the error propagation formula:
 
             \(C_Y = F_X C_X F_X^T\)
-        \end{solution}
-
-        \part (Bonus) Apply the Unscented Kalman Filter to this problem.
-        \begin{solution}
         \end{solution}
     \end{parts}
 
