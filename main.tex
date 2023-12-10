@@ -734,8 +734,15 @@
         \begin{solution}
         \end{solution}
 
-        \part Provide an explanation with reference to code on how the measurement uncertainty covariance matrix R is computed from the uncertainty of the lidar.
+        \part Provide an explanation with reference to code on how the measurement uncertainty covariance matrix $R$ is computed from the uncertainty of the lidar.
         \begin{solution}
+            The measurement uncertainty covariance matrix $R$ is computed in the \texttt{extractLinesPolar.m} file.
+            The covariance is being computed in the \texttt{fitLinePolar.m} file. After measuring $\rho$ and
+            $\theta$ from the sensor, their covariance matrix and the relationship between $\rho$ and $\theta$,
+            and $r$ and $\alpha$ is used to compute the Jacobian, which is then used to compute the covariance
+            matrix $R$ using the error propagation formula:
+
+            \(C_Y = F_X C_X F_X^T\)
         \end{solution}
 
         \part (Bonus) Apply the Unscented Kalman Filter to this problem.
