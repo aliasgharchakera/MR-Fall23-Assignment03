@@ -67,7 +67,7 @@ rate = rateControl(10);
 % in place. Drive the robot by sending a message containing the angular
 % velocity and the desired linear velocity using the ROS publisher.
 prevTime = 1;
-while rate.TotalElapsedTime < 50
+while rate.TotalElapsedTime < 100
 
 	% Get laser scan data and create a lidarScan object
 	scanMsg = receive(laserSub);
