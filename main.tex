@@ -21,6 +21,34 @@
     bottom=2cm, % Adjust this value as needed to leave space for the answer boxes
 }
 
+% Define colors for listings
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+% Setup the listings package
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
 % Header and footer.
 \pagestyle{headandfoot}
 \runningheadrule
@@ -740,7 +768,156 @@
     \begin{parts}
         \part Code
         \begin{solution}
+            The following are the functions that were updated to get the robot to move. 
+            \begin{itemize}
+                \item FilterStep
+                \item associatedmeasurement
+                \item transitionfunction
+            \end{itemize}
+            
+            \begin{lstlisting}[language=Matlab, caption=Matlab code for filter step]
+function [x_posteriori, P_posteriori, Xpri] = filterStep(x, P, u, Q, Z, R, M, g, b)
+    % [x_posteriori, P_posteriori, Xpri] = filterStep(x, P, u, Z, R, M, g, b)
+    % returns an a posteriori estimate of the state and its covariance
+    
+    [Xpri, F_x, F_u] = transitionFunction(x, u, b);
+    PPri = F_x * P * F_x' + F_u * Q * F_u';
+    
+    if isempty(Z)
+        x_posteriori = Xpri;
+        P_posteriori = PPri;
+        return;
+    end
+    
+    [v, H, R_update] = associateMeasurements(Xpri, PPri, Z, R, M, g);
+    
+    y = reshape(v, [], 1);
+    H_reshaped = reshape(permute(H, [1,3,2]), [], 3);
+    
+    % block diagonal matrix
+    nRows = size(R_update,1);
+    nCols = size(R_update,2);
+    nBlocks = size(R_update,3);
+    R_block = zeros(nBlocks*nRows, nBlocks*nCols);
+    for i = 0 : nBlocks-1
+        R_block(i*nRows+1 : (i+1)*nRows, i*nCols+1 : (i+1)*nCols) = R_update(:,:,i+1);
+    end
+    
+    S = H_reshaped * PPri * H_reshaped' + R_block;
+    K = PPri * (H_reshaped' / S);
+    
+    % Manually create an identity matrix
+    n = size(PPri, 1);
+    I = zeros(n);
+    for i = 1:n
+        I(i, i) = 1;
+    end
+    
+    % Update state and covariance estimates
+    P_posteriori = (I - K * H_reshaped) * PPri;
+    x_posteriori = Xpri + K * y;
+end
+            \end{lstlisting}
 
+        Transition function and associateMeasurements are helper functions used in the filterstep. The two function are listed below.
+
+        \begin{lstlisting}[language=Matlab, caption=Transition Function for State Estimation]
+function [f, F_x, F_u] = transitionFunction(x, u, b)
+
+    % Simplified state update calculations
+    theta = x(3);
+    f = [x(1) + (u(1) + u(2)) / 2 * cos(theta)
+            x(2) + (u(1) + u(2)) / 2 * sin(theta)
+            x(3) + (u(2) - u(1)) / b
+        ];
+
+    % Simplified Jacobian with respect to the state
+    F_x = [1, 0, -(u(1) + u(2)) / 2 * sin(theta)
+            0, 1,  (u(1) + u(2)) / 2 * cos(theta)
+            0, 0,  1];
+
+    % Simplified Jacobian with respect to the control inputs
+    F_u = [cos(theta) / 2, cos(theta) / 2
+            sin(theta) / 2, sin(theta) / 2
+            -1 / b,         1 / b];
+
+end
+            \end{lstlisting}
+
+            The transition function is calculating the new state, using the previous state and the control inputs. The Jacobian of the transition function is also calculated in this function. F\_u is another jacobian that checks how changes in the control signal u influence the state change. 
+
+            \begin{lstlisting}[language=Matlab, caption=Associate Measurements Function]
+function [v, H, R] = associateMeasurements(x, P, Z, R, M, g)
+% ASSOCIATEMEASUREMENTS: Associates sensor measurements with map entries.
+
+nMeasurements = size(Z, 2);
+nMapEntries = size(M, 2);
+v = [];
+H = [];
+R_selected = [];
+measurementFound = false; % Flag to indicate if any measurement is found
+
+for i = 1:nMeasurements
+    min_d = inf;
+    min_j = 0;
+    for j = 1:nMapEntries
+        [z_priori, H_ij] = measurementFunction(x, M(:, j));
+        v_ij = Z(:, i) - z_priori;
+        W = H_ij * P * H_ij' + R(:,:,i);
+        d = v_ij' / W * v_ij;
+        if d < min_d
+            min_d = d;
+            min_j = j;
+            v_min = v_ij;
+            H_min = H_ij;
+        end
+    end
+    % Update arrays if a valid measurement is found
+    if min_d < g^2
+        measurementFound = true;
+        v = [v, v_min];
+        H = cat(3, H, H_min);
+        R_selected = cat(3, R_selected, R(:, :, i));
+    end
+end
+
+% Reshape v and H to match original function's output format
+if measurementFound
+    v = reshape(v, [2, numel(v) / 2]);
+    H = reshape(H, [2, 3, size(H, 3)]);
+else
+    % No measurements found, return zero matrices
+    v = zeros(2, 0);
+    H = zeros(2, 3, 0);
+end
+R = R_selected;
+end
+            \end{lstlisting}
+
+            Finally, the associatemeasuremet function, uses the measurementFunction which we also had to complete. 
+
+            \begin{lstlisting}[language=Matlab, caption=Measurement Function]
+function [h, H_x] = measurementFunction(x, m)
+
+h = [
+    m(1) - x(3)
+    m(2) - (x(1)*cos(m(1)) + x(2)*sin(m(1)))
+    ];
+
+H_x = [
+    0,          0,          -1
+    -cos(m(1)), -sin(m(1)),  0
+    ];
+
+[h(1), h(2), isRNegated] = normalizeLineParameters(h(1), h(2));
+
+if isRNegated 
+    H_x(2, :) = - H_x(2, :);
+end
+            \end{lstlisting}
+                
+            The function computes a measurement vector h and its Jacobian H\_x based on the state x and a landmark position m. It normalizes the measurement vector to maintain consistent representation and adjusts the Jacobian accordingly if negation is required. This was all the code that was implemented to get the robot to move. The rest of the code was provided in the helper files. 
+            
         \end{solution}
 
         \part Results
@@ -757,7 +934,7 @@
 
         \part Discussion
         \begin{solution}
-            As the time step increases, the EKF-based localization outperforms odometry due to its ability to correct errors. This results in more accurate and reliable positioning over time, as evidenced by the attached plots, whereas odometry leads to less precise localization due to error accumulated as the time increases.
+            As the time step increases, the EKF-based localization outperforms odometry due to its ability to correct errors. This results in more accurate and reliable positioning over time, as evidenced by the attached plots, whereas odometry leads to less precise localization due to error accumulated as the time increases. With the time increase, EKF and odometry both start getting further away from the actual path, however EKF-based localization is still closer to the actual path in comparison to the odometry.
         \end{solution}
 
         \part Measurement Uncertainty Covariance Matrix $R$
